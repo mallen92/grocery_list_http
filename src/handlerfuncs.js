@@ -1,34 +1,41 @@
-function getList(data) {
-    const jsonData = JSON.stringify(data);
-    return jsonData;
+function getList(groceryList) {
+    // Turn the ShoppingList array (an object) into a JSON string
+    const jsonGroceryList = JSON.stringify(groceryList);
+    return jsonGroceryList;
 }
 
-function createItem(body, groceryList) {
-    const newItem = JSON.stringify(body);
-    const currentItemCount = groceryList.length;
-    const updatedItemCount = groceryList.push(newItem);
+function createItem(itemJsonString, groceryList) {
+    const listSizeBeforeItemAdd = groceryList.length;
+    
+    // Convert the JSON string into a JavaScript object before adding it to the ShoppingList array
+    const itemObject = JSON.parse(itemJsonString);
+    const listSizeAfterItemAdd = groceryList.push(itemObject);
 
-    return updatedItemCount === currentItemCount + 1;
+    return listSizeAfterItemAdd === listSizeBeforeItemAdd + 1;
 }
 
-function putItem(body, itemNum, groceryList) {
-    const replacementItem = JSON.stringify(body);
-            
-    // Replace the item at that index with the one sent in the body of the request
+function putItem(groceryList, itemNum, replacementItemJsonString) {
+    const replacementItem = JSON.parse(replacementItemJsonString);
+    
+    // To compare and see if the item was actually replaced, store
+    // the item in a variable before replacing it
     const currentItem = groceryList[itemNum-1];
+
+    // Index = itemNum from the query string - 1
+    // Replace the item at the index with the new item
     groceryList[itemNum-1] = replacementItem;
 
     return currentItem !== groceryList[itemNum-1];
 }
 
-function deleteItem(itemNum, groceryList) {
-    // Remove the item of that index from the array.
-    // If the client wants to delete item n, delete element n-1 from the array
-    const currentItemCount = groceryList.length;
-    groceryList.splice(itemNum-1, 1);
-    const updatedItemCount = groceryList.length;
+function deleteItem(groceryList, itemNum) {
+    
+    const itemToDelete = groceryList[itemNum-1];
+    
+    // splice() returns an ARRAY of the items removed from the target array
+    const deletedItem = groceryList.splice(itemNum-1, 1);
 
-    return currentItemCount > updatedItemCount;
+    return itemToDelete === deletedItem[0];
 }
 
 module.exports = { getList, createItem, putItem, deleteItem };

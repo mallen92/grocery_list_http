@@ -15,21 +15,21 @@ const server = http.createServer((req, res) => {
         res.end(httpHandlers.getList(shoppingList));
     }
     else if(req.method === 'POST' && req.url == '/api/grocery') {
-        let body = '';
+        let responseBody = '';
 
-        // Retreive the body from the HTTP requested
+        // Retreive the body from the HTTP request
         req.on('data', (chunk) => {
-            body += chunk;
+            responseBody += chunk;
         });
     
         req.on('end', () => {
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            if(httpHandlers.createItem(body, shoppingList)) {
+            if(httpHandlers.createItem(responseBody, shoppingList)) {
+                res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end('Item created successfully!');
                 logger.info("Item created successfully!");
             }
             else {
-                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.writeHead(400, {'Content-Type': 'text/plain'});
                 res.end('Item creation unsuccessful.');
                 logger.error("Item creation unsuccessful.");
             }
@@ -37,10 +37,10 @@ const server = http.createServer((req, res) => {
         });
     }
     else if(req.method === 'PUT') {
-        let body = '';
+        let responseBody = '';
 
         req.on('data', (chunk) => {
-            body += chunk;
+            responseBody += chunk;
         });
     
         req.on('end', () => {
@@ -54,14 +54,14 @@ const server = http.createServer((req, res) => {
             // Convert the number value into an actual number.
             const itemNum = Number(paramArray[1]);
     
-            if(httpHandlers.putItem(body, itemNum, shoppingList))
+            if(httpHandlers.putItem(shoppingList, itemNum, responseBody))
             {
                 res.writeHead(201, {'Content-Type': 'application/json'});
                 res.end('Item updated successfully!');
                 logger.info("Item updated successfully!");
             }
             else {
-                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.writeHead(400, {'Content-Type': 'text/plain'});
                 res.end('Item update unsuccessful.');
                 logger.error("Item update unsuccessful.");
             }
@@ -75,13 +75,13 @@ const server = http.createServer((req, res) => {
     
         const itemNum = Number(paramArray[1]);
         
-        if(httpHandlers.deleteItem(itemNum, shoppingList)) {
+        if(httpHandlers.deleteItem(shoppingList, itemNum)) {
             res.writeHead(201, {'Content-Type': 'application/json'});
             res.end('Item deleted successfully!');
             logger.info("Item deleted successfully!");
         }
         else {
-            res.writeHead(404, {'Content-Type': 'text/plain'});
+            res.writeHead(400, {'Content-Type': 'text/plain'});
             res.end('Item deletion unsuccessful.');
             logger.error("Item deletion unsuccessful.");
         }
