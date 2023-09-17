@@ -1,10 +1,10 @@
 const fs = require('fs');
 
 // Production database file
-//const dbFile = './database.json';
+//const dbFile = './databases/database.json';
 
 // Testing database file
-const dbFile = './testdb.json';
+const dbFile = './databases/testdb.json';
 
 function getList() { return JSON.parse(fs.readFileSync(dbFile)); }
 
