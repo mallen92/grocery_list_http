@@ -1,18 +1,22 @@
 const http = require('http');
 const url = require('node:url');
-const httpHandlers = require('./src/handlerfuncs.js');
+const groceryListFileDAO = require('./src/groceryListFileDAO.js');
 const logger = require('./log.js');
 const PORT = 8000;
-
-// Define an array to store the shopping list
-let shoppingList = [];
 
 // Create a web server
 const server = http.createServer((req, res) => {
 
     if(req.method === 'GET' && req.url == '/api/grocery') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(httpHandlers.getList(shoppingList));
+        if (groceryListFileDAO.getList()) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(groceryListFileDAO.getList()));
+        }
+        else {
+            res.writeHead(404, {'Content-Type': 'text/plain'});
+            res.end('List retrieval unsuccessful.');
+            logger.error("List retrieval unsuccessful.");
+        }
     }
     else if(req.method === 'POST' && req.url == '/api/grocery') {
         let responseBody = '';
@@ -23,7 +27,7 @@ const server = http.createServer((req, res) => {
         });
     
         req.on('end', () => {
-            if(httpHandlers.createItem(responseBody, shoppingList)) {
+            if(groceryListFileDAO.createItem(responseBody)) {
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end('Item created successfully!');
                 logger.info("Item created successfully!");
@@ -54,7 +58,7 @@ const server = http.createServer((req, res) => {
             // Convert the number value into an actual number.
             const itemNum = Number(paramArray[1]);
     
-            if(httpHandlers.putItem(shoppingList, itemNum, responseBody))
+            if(groceryListFileDAO.putItem(itemNum, responseBody))
             {
                 res.writeHead(201, {'Content-Type': 'application/json'});
                 res.end('Item updated successfully!');
@@ -75,7 +79,7 @@ const server = http.createServer((req, res) => {
     
         const itemNum = Number(paramArray[1]);
         
-        if(httpHandlers.deleteItem(shoppingList, itemNum)) {
+        if(groceryListFileDAO.deleteItem(itemNum)) {
             res.writeHead(201, {'Content-Type': 'application/json'});
             res.end('Item deleted successfully!');
             logger.info("Item deleted successfully!");

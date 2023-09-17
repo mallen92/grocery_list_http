@@ -2,7 +2,7 @@
   "name": "grocery_list_http",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "api.js",
   "scripts": {
     "test": "jest"
   },
